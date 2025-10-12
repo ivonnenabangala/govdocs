@@ -1,0 +1,7 @@
+CREATE TABLE documents (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255),
+  description TEXT,
+  s3_url TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
