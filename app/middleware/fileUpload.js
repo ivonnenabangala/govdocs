@@ -7,15 +7,17 @@ import { s3 } from '../configs/awsConfig.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Load .env relative to this file
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
-export const uploadFile = (folder) =>
-    console.log('Bucket:', process.env.AWS_BUCKET_NAME);
+export const uploadFile = (folder) => {
+  console.log('Bucket:', process.env.AWS_BUCKET_NAME); // ✅ should now log correctly
 
-  multer({
+  return multer({
     storage: multerS3({
       s3: s3,
-      bucket: process.env.S3_BUCKET_NAME,
+      bucket: process.env.AWS_BUCKET_NAME, // ✅ fixed name (was S3_BUCKET_NAME)
       contentType: multerS3.AUTO_CONTENT_TYPE,
       key: (req, file, cb) => {
         const fileName = `${Date.now()}-${file.originalname}`;
@@ -43,3 +45,4 @@ export const uploadFile = (folder) =>
       }
     },
   });
+};

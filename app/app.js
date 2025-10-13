@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import documentRoutes from './routes/documentRoutes.js';
+import { renderHomePage } from './controllers/documents.js';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -17,10 +18,9 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
+app.get('/', renderHomePage);
 app.use('/api', documentRoutes);
-app.get('/', (req, res) => {
-  res.render('index');
-});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

@@ -3,6 +3,7 @@ import { uploadFile } from '../middleware/fileUpload.js';
 
 const uploadDocument = uploadFile('documents').single('document');
 
+// === API CONTROLLERS ===
 export async function addDocument(req, res) {
   uploadDocument(req, res, async function (err) {
     if (err) {
@@ -11,7 +12,7 @@ export async function addDocument(req, res) {
 
     try {
       const { title, description } = req.body;
-      const fileUrl = req.file.location; 
+      const fileUrl = req.file.location;
 
       const query = `
         INSERT INTO documents (title, description, s3_url, created_at)
@@ -19,7 +20,6 @@ export async function addDocument(req, res) {
         RETURNING *;
       `;
       const values = [title, description, fileUrl];
-
       const result = await pool.query(query, values);
 
       res.status(201).json({
@@ -58,5 +58,19 @@ export async function getDocument(req, res) {
   } catch (error) {
     console.error('Error fetching document:', error);
     res.status(500).json({ message: `Internal server error: ${error.message}` });
+  }
+}
+
+// === WEB VIEW CONTROLLER ===
+export async function renderHomePage(req, res) {
+  try {
+    const query = 'SELECT * FROM documents ORDER BY created_at DESC;';
+    const result = await pool.query(query);
+
+    // Always send an array, even if empty
+    res.render('index', { documents: result.rows || [] });
+  } catch (error) {
+    console.error('Error rendering homepage:', error);
+    res.render('index', { documents: [] });
   }
 }

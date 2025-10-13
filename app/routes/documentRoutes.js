@@ -4,7 +4,7 @@ import { addDocument, getAllDocuments, getDocument } from '../controllers/docume
 const router = express.Router();
 
 router.post('/documents', addDocument);
-router.get('/documents', getAllDocuments);
+router.get('/', getAllDocuments);
 router.get('/documents/:documentId', getDocument);
 
 export default router;
