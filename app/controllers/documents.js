@@ -1,37 +1,40 @@
 import pool from '../dbHelper/db.js';
 import { uploadFile } from '../middleware/fileUpload.js';
 
-const uploadDocument = uploadFile('documents').single('document');
+const uploadDocument = uploadFile('documents').single('file');
 
 // === API CONTROLLERS ===
 export async function addDocument(req, res) {
+  console.log('Received upload request'); // <-- add this
   uploadDocument(req, res, async function (err) {
     if (err) {
+      console.error('Multer error:', err);
       return res.status(400).json({ error: err.message });
     }
 
     try {
+      console.log('File uploaded to S3:', req.file?.location);
       const { title, description } = req.body;
       const fileUrl = req.file.location;
 
       const query = `
-        INSERT INTO documents (title, description, s3_url, created_at)
-        VALUES ($1, $2, $3, NOW())
+        INSERT INTO documents (title, description, file_url)
+        VALUES ($1, $2, $3)
         RETURNING *;
       `;
       const values = [title, description, fileUrl];
       const result = await pool.query(query, values);
 
-      res.status(201).json({
-        message: 'Document uploaded successfully',
-        document: result.rows[0],
-      });
+      console.log('Document saved to DB:', result.rows[0]);
+
+      res.render('success', { title: result.rows[0].title });
     } catch (error) {
       console.error('Error uploading document:', error);
       res.status(500).json({ message: `Internal server error: ${error.message}` });
     }
   });
 }
+
 
 export async function getAllDocuments(req, res) {
   try {

@@ -19,6 +19,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.get('/', renderHomePage);
+app.get('/upload', (req, res) => {
+  res.render('upload');
+});
 app.use('/api', documentRoutes);
 
 
