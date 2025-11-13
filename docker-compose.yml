@@ -1,0 +1,45 @@
+services: 
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: govdocs-web-app
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - NODE_ENV=${NODE_ENV}
+    depends_on:
+      - db
+    networks:
+      - docsnet
+    labels:
+      - "com.govdocs.service=web"
+      - "com.govdocs.version=1.0.0"
+
+  db:
+    image: postgres:14-alpine
+    container_name: govdocs-database
+    environment:
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./app/database/db.sql:/docker-entrypoint-initdb.d/db.sql
+    networks:
+      - docsnet
+    ports:
+      - "5432:5432"
+    labels:
+      - "com.govdocs.service=database"
+
+volumes:
+  postgres_data:
+
+networks:
+  docsnet:
+    driver: bridge
